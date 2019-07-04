@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:english_words/english_words.dart';
 
 void main() => runApp(MyApp());
 
@@ -19,7 +20,9 @@ class MyApp extends StatelessWidget {
         // 需要注意的是，计数器没有重置回 0; 因为这个应用根本没有退出，而是热更新。
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(
+        title: 'Flutter Demo Home Page',
+      ),
     );
   }
 }
@@ -31,7 +34,7 @@ class MyHomePage extends StatefulWidget {
   // 它有一个包含影响应用外观的属性的 State object (定义如下)。
 
   // 这个类是 state 的配置. 它拥有多个值 (当前情况下是 title)
-  // 由它的父级提供 (当前情况下是 MyApp widget) 
+  // 由它的父级提供 (当前情况下是 MyApp widget)
   // 并且由 State 类中的 build 方法提供. 在组件子类的属性用 "final" 标记。
 
   final String title;
@@ -50,6 +53,7 @@ class _MyHomePageState extends State<MyHomePage> {
       // 从而在视图中能展现新的值.如果我们不使用 setState() 来改变
       // _counter, 这样不会重新调用 build 方法，
       // 所以不会发生任何事。
+
       _counter++;
     });
   }
@@ -83,7 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'You have pushed the button this many times:',
+              '当前点击次数:',
             ),
             Text(
               '$_counter',
