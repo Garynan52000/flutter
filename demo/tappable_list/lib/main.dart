@@ -1,42 +1,14 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(MyApp());
-
-/**
- * 产品数据类
- */
 class Product {
   const Product({this.name});
   final String name;
 }
 
-/**
- * 卡牌变化回调函数类型
- */
 typedef void CartChangedCallback(Product product, bool inCart);
 
-/**
- * 根APP
- */
-class MyApp extends StatelessWidget {
-  const MyApp({Key key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Tappable List',
-      home: Container(
-        child: Text(
-          'Hello World',
-          textDirection: TextDirection.ltr,
-        ),
-      ),
-    );
-  }
-}
-
-class ProductItem extends StatelessWidget {
-  ProductItem({Product product, this.inCart, this.onCartChanged})
+class ShoppingListItem extends StatelessWidget {
+  ShoppingListItem({Product product, this.inCart, this.onCartChanged})
       : product = product,
         super(key: ObjectKey(product));
 
@@ -44,10 +16,11 @@ class ProductItem extends StatelessWidget {
   final bool inCart;
   final CartChangedCallback onCartChanged;
 
-  /**
-   * 获取卡片颜色
-   */
   Color _getColor(BuildContext context) {
+    // The theme depends on the BuildContext because different parts of the tree
+    // can have different themes.  The BuildContext indicates where the build is
+    // taking place and therefore which theme to use.
+
     return inCart ? Colors.black54 : Theme.of(context).primaryColor;
   }
 
@@ -55,68 +28,86 @@ class ProductItem extends StatelessWidget {
     if (!inCart) return null;
 
     return TextStyle(
-        color: Colors.black54, 
-        decoration: TextDecoration.lineThrough,
-        backgroundColor: _getColor(context)
+      color: Colors.black54,
+      decoration: TextDecoration.lineThrough,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return ListTile(
       onTap: () {
         onCartChanged(product, inCart);
       },
-      child: Container(
-        child: Title(
-          title: product.name,
-          color: Colors.white54,
-          child: Text(
-            product.name,
-            style: _getTextStyle(context),
-          ),
-        ),
-        padding: EdgeInsets.all(15.0),
+      leading: CircleAvatar(
+        backgroundColor: _getColor(context),
+        child: Text(product.name[0]),
       ),
+      title: Text(product.name, style: _getTextStyle(context)),
     );
   }
 }
 
-class ProductsList extends StatefulWidget {
-  const ProductsList({Key key, this.products}) : super(key: key);
+class ShoppingList extends StatefulWidget {
+  ShoppingList({Key key, this.products}) : super(key: key);
 
   final List<Product> products;
 
-  @override
-  _ProductsListState createState() {
-    return _ProductsListState();
-  }
-}
-class _ProductsListState extends State<ProductsList> {
+  // The framework calls createState the first time a widget appears at a given
+  // location in the tree. If the parent rebuilds and uses the same type of
+  // widget (with the same key), the framework re-uses the State object
+  // instead of creating a new State object.
 
-  Set<Product> _products = Set<Product>();
+  @override
+  _ShoppingListState createState() => _ShoppingListState();
+}
+
+class _ShoppingListState extends State<ShoppingList> {
+  Set<Product> _shoppingCart = Set<Product>();
 
   void _handleCartChanged(Product product, bool inCart) {
     setState(() {
+      // When a user changes what's in the cart, you need to change
+      //_shoppingCart inside a setState call to trigger a rebuild.
+      // The framework then calls // build, below,
+      // which updates the visual appearance of the app.
+
       if (!inCart)
-        _products.add(product);
+        _shoppingCart.add(product);
       else
-        _products.remove(product);
+        _shoppingCart.remove(product);
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Tappable List'
-        ),
+        title: Text('Shopping List'),
       ),
       body: ListView(
         padding: EdgeInsets.symmetric(vertical: 8.0),
+        children: widget.products.map((Product product) {
+          return ShoppingListItem(
+            product: product,
+            inCart: _shoppingCart.contains(product),
+            onCartChanged: _handleCartChanged,
+          );
+        }).toList(),
       ),
     );
   }
+}
+
+void main() {
+  runApp(MaterialApp(
+    title: 'Shopping App',
+    home: ShoppingList(
+      products: <Product>[
+        Product(name: 'Eggs'),
+        Product(name: 'Flour'),
+        Product(name: 'Chocolate chips'),
+      ],
+    ),
+  ));
 }
